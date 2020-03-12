@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Placement</string>
+
+    <string-array name="subjects">
+        <item>Subject 1</item>
+        <item>Subject 2</item>
+        <item>Subject 3</item>
+        <item>Subject 4</item>
+        <item>Subject 5</item>
+        <item>Subject 6</item>
+
+    </string-array>
+</resources>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="10dp"
+        android:elevation="100dp">
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:padding="10dp"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Subject"
+                android:textSize="15dp"
+                android:id="@+id/tvSubject"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Description"
+                android:layout_below="@id/tvSubject"
+                android:layout_marginTop="10dp"
+                android:textSize="15dp"
+                android:id="@+id/tvDesc"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Email"
+                android:layout_below="@id/tvDesc"
+                android:layout_marginTop="10dp"
+                android:textSize="15dp"
+                android:id="@+id/tvEmail"
+
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Contact"
+                android:layout_below="@id/tvEmail"
+                android:layout_marginTop="10dp"
+                android:textSize="15dp"
+                android:id="@+id/tvContact"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Frequency"
+                android:layout_below="@id/tvContact"
+                android:layout_marginTop="10dp"
+                android:textSize="15dp"
+                android:id="@+id/tvFreq"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status"
+                android:layout_below="@id/tvFreq"
+                android:layout_marginTop="10dp"
+                android:textSize="15dp"
+                android:id="@+id/tvStatus"
+                />
+
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:id="@+id/cbList"
+                android:checked="false"
+                />
+        </RelativeLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>
