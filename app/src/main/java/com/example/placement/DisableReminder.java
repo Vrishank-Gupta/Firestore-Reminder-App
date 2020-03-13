@@ -37,17 +37,17 @@ public class DisableReminder extends AppCompatActivity {
     String subject,description,email,number, date;
     Spinner spinSubj, spinReminder;
     int day, reminderIndex;
-    Button btnConfirm, btnClear, btnLogout;
+    Button btnConfirm, btnLogout;
     GoogleSignInClient mGoogleSignInClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_disable_reminder);
 
-        tvDesc = findViewById(R.id.tvDesc);
+        tvDesc = findViewById(R.id.TvDesc);
+        tvDesc.setText("Desc");
         imDate = findViewById(R.id.imDate);
         tvDate = findViewById(R.id.tvDate);
-        btnClear = findViewById(R.id.btnClear);
         btnConfirm = findViewById(R.id.btnConfirm);
         btnLogout = findViewById(R.id.btnLogOut);
         spinSubj = findViewById(R.id.spinSubject);
@@ -118,6 +118,7 @@ public class DisableReminder extends AppCompatActivity {
                 description = Main2Activity.reminderArrayList.get(position).getDescription();
                 try{
                     tvDesc.setText(description);
+                    reminderIndex = position;
                 }catch (Exception e)
                 {
                     Log.e("TVDesc", "onItemSelected: "+ e);
@@ -130,6 +131,13 @@ public class DisableReminder extends AppCompatActivity {
             }
         });
 
+       btnConfirm.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View v) {
+               Main2Activity.reminderArrayList.get(reminderIndex).setStatus(false);
+               Toast.makeText(DisableReminder.this, "Reminder Disabled", Toast.LENGTH_SHORT).show();
+           }
+       });
 
 
         btnLogout.setOnClickListener(new View.OnClickListener() {

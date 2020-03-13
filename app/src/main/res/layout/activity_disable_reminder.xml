@@ -124,15 +124,6 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:text="Clear"
-            android:id="@+id/btnClear"
-            />
-
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="Log Out"
             android:id="@+id/btnLogOut"
             android:layout_marginStart="20dp"

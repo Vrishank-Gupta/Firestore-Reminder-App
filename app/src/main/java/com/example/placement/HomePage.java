@@ -74,6 +74,14 @@ public class HomePage extends AppCompatActivity {
             }
         });
 
+        btnEnab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(HomePage.this, EnableReminder.class));
+
+            }
+        });
+
 
 
     }

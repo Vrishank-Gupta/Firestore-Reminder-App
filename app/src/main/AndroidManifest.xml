@@ -11,7 +11,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".DisableReminder"></activity>
+        <activity android:name=".EnableReminder"></activity>
+        <activity android:name=".DisableReminder" />
         <activity android:name=".ModifyReminder" />
         <activity android:name=".ViewReminder" />
         <activity android:name=".NewReminder" />
