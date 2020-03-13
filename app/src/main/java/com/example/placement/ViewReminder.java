@@ -20,6 +20,5 @@ public class ViewReminder extends AppCompatActivity {
 
         ReminderAdapter adapter = new ReminderAdapter(this,R.layout.reminder_item,Main2Activity.reminderArrayList);
         lvRem.setAdapter(adapter);
-
     }
 }

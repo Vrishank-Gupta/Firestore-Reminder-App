@@ -1,8 +1,10 @@
 package com.example.placement;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -19,13 +21,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.placement.util.Reminder;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class NewReminder extends AppCompatActivity {
+public class ModifyReminder extends AppCompatActivity {
 
     ImageView imDate;
     Calendar calendar;
@@ -33,16 +39,16 @@ public class NewReminder extends AppCompatActivity {
     TextView tvDate;
     String subject,description,email,number, date;
     CheckBox cb7,cb5,cb3,cb2;
-    Spinner spinSubj;
-    int day;
-    Button btnConfirm, btnClear;
+    Spinner spinSubj, spinReminder;
+    int day, reminderIndex;
+    Button btnConfirm, btnClear, btnLogout;
     EditText etDesc,etEmail,etNumber;
+    GoogleSignInClient mGoogleSignInClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_reminder);
-
+        setContentView(R.layout.activity_modify_reminder);
 
         etDesc = findViewById(R.id.etDesc);
         etEmail = findViewById(R.id.etEmail);
@@ -55,8 +61,16 @@ public class NewReminder extends AppCompatActivity {
         cb7 = findViewById(R.id.chk7);
         btnClear = findViewById(R.id.btnClear);
         btnConfirm = findViewById(R.id.btnConfirm);
+        btnLogout = findViewById(R.id.btnLogOut);
         spinSubj = findViewById(R.id.spinSubject);
+        spinReminder = findViewById(R.id.spinReminder);
 
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         imDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,7 +79,7 @@ public class NewReminder extends AppCompatActivity {
                 int month = calendar.get(Calendar.MONTH);
                 int year = calendar.get(Calendar.YEAR);
 
-                dialog = new DatePickerDialog(NewReminder.this, new DatePickerDialog.OnDateSetListener() {
+                dialog = new DatePickerDialog(ModifyReminder.this, new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker datePicker, int mYear, int mMonth, int mDay) {
                         tvDate.setText(mDay + "/" + (mMonth+1) + "/" + mYear);
@@ -77,11 +91,14 @@ public class NewReminder extends AppCompatActivity {
 
 
 
+        ArrayAdapter<CharSequence> adapter =
+                ArrayAdapter.createFromResource(this,
+                        R.array.subjects,
+                        android.R.layout.simple_spinner_item);
 
-
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.subjects,android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinSubj.setAdapter(adapter);
+
         spinSubj.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -95,17 +112,44 @@ public class NewReminder extends AppCompatActivity {
         });
 
 
+
+        ArrayAdapter<Reminder> adapterReminder =
+                new ArrayAdapter<Reminder>
+                        (getApplicationContext(),
+                        android.R.layout.simple_spinner_dropdown_item,
+                        Main2Activity.reminderArrayList);
+
+        adapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item);
+        spinReminder.setAdapter(adapterReminder);
+
+        spinReminder.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                reminderIndex = position;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+
+
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(tvDate.getText().equals("") || etDesc.getText().toString().equals("") || etEmail.getText().toString().equals("") || etNumber.getText().toString().equals(""))
+                if(tvDate.getText().equals("") ||
+                        etDesc.getText().toString().equals("") ||
+                        etEmail.getText().toString().equals("") ||
+                        etNumber.getText().toString().equals(""))
                 {
-                    Toast.makeText(NewReminder.this, "Please fill all the fields.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ModifyReminder.this, "Please fill all the fields.", Toast.LENGTH_SHORT).show();
                 }
 
                 if(!isEmailValid(etEmail.getText().toString()))
                 {
-                    Toast.makeText(NewReminder.this, "Invalid Email", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ModifyReminder.this, "Invalid Email", Toast.LENGTH_SHORT).show();
                 }
 
                 else
@@ -135,13 +179,11 @@ public class NewReminder extends AppCompatActivity {
                         day = 7;
                     }
 
+
                     Reminder reminder = new Reminder(Main2Activity.name,email, date,subject, description,number, day, true);
                     Log.d("New Reminder", "onClick: " + reminder.toString());
-                    Main2Activity.reminderArrayList.add(reminder);
-
-
-
-                    Toast.makeText(NewReminder.this, "Submitted", Toast.LENGTH_SHORT).show();
+                    Main2Activity.reminderArrayList.set(reminderIndex, reminder);
+                    Toast.makeText(ModifyReminder.this, "Submitted", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -160,6 +202,15 @@ public class NewReminder extends AppCompatActivity {
             }
         });
 
+
+        btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                signOut();
+            }
+        });
+
+
         cb5.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -176,11 +227,11 @@ public class NewReminder extends AppCompatActivity {
         cb7.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-               if(isChecked) {
-                   cb2.setChecked(false);
-                   cb3.setChecked(false);
-                   cb5.setChecked(false);
-               }
+                if(isChecked) {
+                    cb2.setChecked(false);
+                    cb3.setChecked(false);
+                    cb5.setChecked(false);
+                }
 
             }
         });
@@ -216,5 +267,17 @@ public class NewReminder extends AppCompatActivity {
         Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
+    }
+
+    private void signOut() {
+        mGoogleSignInClient.signOut()
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Toast.makeText(ModifyReminder.this,"Successfully signed out",Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(ModifyReminder.this, MainActivity.class));
+                        finish();
+                    }
+                });
     }
 }

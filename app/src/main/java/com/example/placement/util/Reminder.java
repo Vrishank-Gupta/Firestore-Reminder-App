@@ -83,15 +83,6 @@ public class Reminder {
 
     @Override
     public String toString() {
-        return "Reminder{" +
-                "name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", date='" + date + '\'' +
-                ", subject='" + subject + '\'' +
-                ", description='" + description + '\'' +
-                ", contact='" + contact + '\'' +
-                ", day=" + day +
-                ", status=" + status +
-                '}';
+        return  ""+name +" " +  description;
     }
 }

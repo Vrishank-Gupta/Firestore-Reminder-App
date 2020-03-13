@@ -59,6 +59,23 @@ public class HomePage extends AppCompatActivity {
             }
         });
 
+        btnMod.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(HomePage.this, ModifyReminder.class));
+            }
+        });
+
+        btnDis.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(HomePage.this, DisableReminder.class));
+
+            }
+        });
+
+
+
     }
 
 
@@ -69,7 +86,7 @@ public class HomePage extends AppCompatActivity {
         Calendar calendar = Calendar.getInstance();
         int day = calendar.get(Calendar.DAY_OF_WEEK);
 
-        return daysArray[day];
+        return daysArray[(day-1)%7];
 
     }
 
