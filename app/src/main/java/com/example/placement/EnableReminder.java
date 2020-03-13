@@ -50,6 +50,7 @@ public class EnableReminder extends AppCompatActivity {
         setContentView(R.layout.activity_enable_reminder);
 
 
+        reminderIndex = -1;
         etDesc = findViewById(R.id.etDesc);
         etEmail = findViewById(R.id.etEmail);
         etNumber = findViewById(R.id.etNumber);
@@ -182,7 +183,7 @@ public class EnableReminder extends AppCompatActivity {
 
                     Reminder reminder = new Reminder(Main2Activity.name,email, date,subject, description,number, day, true);
                     Log.d("New Reminder", "onClick: " + reminder.toString());
-                    Main2Activity.reminderArrayList.set(reminderIndex, reminder);
+                    if(reminderIndex != -1) Main2Activity.reminderArrayList.set(reminderIndex, reminder);
                     Toast.makeText(EnableReminder.this, "Enabled Reminder", Toast.LENGTH_SHORT).show();
                 }
             }

@@ -11,9 +11,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -28,7 +26,7 @@ import com.google.android.gms.tasks.Task;
 
 import java.util.Calendar;
 
-public class DisableReminder extends AppCompatActivity {
+public class DeleteReminder extends AppCompatActivity {
 
     ImageView imDate;
     Calendar calendar;
@@ -42,7 +40,7 @@ public class DisableReminder extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_disable_reminder);
+        setContentView(R.layout.activity_delete_reminder);
 
         tvDesc = findViewById(R.id.TvDesc);
         tvDesc.setText("Desc");
@@ -69,7 +67,7 @@ public class DisableReminder extends AppCompatActivity {
                 int month = calendar.get(Calendar.MONTH);
                 int year = calendar.get(Calendar.YEAR);
 
-                dialog = new DatePickerDialog(DisableReminder.this, new DatePickerDialog.OnDateSetListener() {
+                dialog = new DatePickerDialog(DeleteReminder.this, new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker datePicker, int mYear, int mMonth, int mDay) {
                         tvDate.setText(mDay + "/" + (mMonth+1) + "/" + mYear);
@@ -132,16 +130,17 @@ public class DisableReminder extends AppCompatActivity {
             }
         });
 
-       btnConfirm.setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View v) {
-               if(reminderIndex!=-1)
-               {
-                   Main2Activity.reminderArrayList.get(reminderIndex).setStatus(false);
-                   Toast.makeText(DisableReminder.this, "Reminder Disabled", Toast.LENGTH_SHORT).show();
-               }
-           }
-       });
+        btnConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+              if(reminderIndex != -1){
+                  Main2Activity.reminderArrayList.remove(reminderIndex);
+                  Toast.makeText(DeleteReminder.this, "Reminder Deleted", Toast.LENGTH_SHORT).show();
+
+              }
+            }
+        });
 
 
         btnLogout.setOnClickListener(new View.OnClickListener() {
@@ -157,12 +156,10 @@ public class DisableReminder extends AppCompatActivity {
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        Toast.makeText(DisableReminder.this,"Successfully signed out",Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(DisableReminder.this, MainActivity.class));
+                        Toast.makeText(DeleteReminder.this,"Successfully signed out",Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(DeleteReminder.this, MainActivity.class));
                         finish();
                     }
                 });
     }
-
-
 }

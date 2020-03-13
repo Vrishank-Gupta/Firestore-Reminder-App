@@ -50,6 +50,7 @@ public class ModifyReminder extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_modify_reminder);
 
+        reminderIndex = -1;
         etDesc = findViewById(R.id.etDesc);
         etEmail = findViewById(R.id.etEmail);
         etNumber = findViewById(R.id.etNumber);
@@ -182,7 +183,7 @@ public class ModifyReminder extends AppCompatActivity {
 
                     Reminder reminder = new Reminder(Main2Activity.name,email, date,subject, description,number, day, true);
                     Log.d("New Reminder", "onClick: " + reminder.toString());
-                    Main2Activity.reminderArrayList.set(reminderIndex, reminder);
+                    if(reminderIndex!=-1) Main2Activity.reminderArrayList.set(reminderIndex, reminder);
                     Toast.makeText(ModifyReminder.this, "Submitted", Toast.LENGTH_SHORT).show();
                 }
             }
