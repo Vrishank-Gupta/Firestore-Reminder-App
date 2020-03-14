@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -28,13 +29,13 @@ public class ReminderAdapter extends ArrayAdapter<Reminder> {
 
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+    public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         String subject = getItem(position).getSubject();
         String email = getItem(position).getEmail();
         String number = getItem(position).getContact();
         String desc = getItem(position).getDescription();
         int freq = getItem(position).getDay();
-        boolean status = getItem(position).isStatus();
+        final boolean status = getItem(position).isStatus();
 
         LayoutInflater inflater = LayoutInflater.from(mContext);
         convertView = inflater.inflate(mResource,parent,false);
@@ -62,6 +63,17 @@ public class ReminderAdapter extends ArrayAdapter<Reminder> {
 
         else
             tvStatus.setText("Inactive");
+
+        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked)
+                {
+                    getItem(position).setStatus(false);
+                }
+
+            }
+        });
 
         return convertView;
     }

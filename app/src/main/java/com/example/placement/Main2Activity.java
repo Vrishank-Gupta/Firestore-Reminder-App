@@ -49,6 +49,7 @@ public class Main2Activity extends AppCompatActivity {
         photoIV = findViewById(R.id.photo);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
 
