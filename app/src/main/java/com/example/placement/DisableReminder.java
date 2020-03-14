@@ -24,9 +24,16 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
 
 import java.util.Calendar;
+
+import static com.example.placement.MainActivity.reminderArrayList;
 
 public class DisableReminder extends AppCompatActivity {
 
@@ -39,10 +46,18 @@ public class DisableReminder extends AppCompatActivity {
     int  reminderIndex;
     Button btnConfirm, btnLogout;
     GoogleSignInClient mGoogleSignInClient;
+    FirebaseFirestore firestore;
+    FirebaseAuth firebaseAuth;
+    DocumentReference documentReference;
+    Gson gson;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_disable_reminder);
+        firebaseAuth = FirebaseAuth.getInstance();
+        firestore = FirebaseFirestore.getInstance();
+        gson = new Gson();
+        documentReference = firestore.collection("users").document(firebaseAuth.getCurrentUser().getUid());
 
         tvDesc = findViewById(R.id.TvDesc);
         tvDesc.setText("Desc");
@@ -107,7 +122,7 @@ public class DisableReminder extends AppCompatActivity {
                 new ArrayAdapter<Reminder>
                         (getApplicationContext(),
                                 android.R.layout.simple_spinner_dropdown_item,
-                                Main2Activity.reminderArrayList);
+                                MainActivity.reminderArrayList);
 
         adapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item);
         spinReminder.setAdapter(adapterReminder);
@@ -117,7 +132,7 @@ public class DisableReminder extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 reminderIndex = position;
-                description = Main2Activity.reminderArrayList.get(position).getDescription();
+                description = MainActivity.reminderArrayList.get(position).getDescription();
                 try{
                     tvDesc.setText(description);
                     reminderIndex = position;
@@ -138,7 +153,17 @@ public class DisableReminder extends AppCompatActivity {
            public void onClick(View v) {
                if(reminderIndex!=-1)
                {
-                   Main2Activity.reminderArrayList.get(reminderIndex).setStatus(false);
+                   MainActivity.reminderArrayList.get(reminderIndex).setStatus(false);
+
+                   String jsonReminder = gson.toJson(reminderArrayList);
+                   MainActivity.map.put("Reminders", jsonReminder);
+                   documentReference.set(MainActivity.map).addOnSuccessListener(new OnSuccessListener<Void>() {
+                       @Override
+                       public void onSuccess(Void aVoid) {
+                           Toast.makeText(DisableReminder.this, "Pushed", Toast.LENGTH_SHORT).show();
+                       }
+                   });
+
                    Toast.makeText(DisableReminder.this, "Reminder Disabled", Toast.LENGTH_SHORT).show();
                }
            }

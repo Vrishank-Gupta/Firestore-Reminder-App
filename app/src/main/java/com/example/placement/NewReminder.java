@@ -19,11 +19,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.placement.util.Reminder;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.example.placement.MainActivity.reminderArrayList;
 
 public class NewReminder extends AppCompatActivity {
 
@@ -36,6 +43,10 @@ public class NewReminder extends AppCompatActivity {
     Spinner spinSubj;
     int day;
     Button btnConfirm, btnClear;
+    FirebaseAuth firebaseAuth;
+    FirebaseFirestore firestore;
+    DocumentReference documentReference;
+    Gson gson;
     EditText etDesc,etEmail,etNumber;
 
     @Override
@@ -43,6 +54,10 @@ public class NewReminder extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_reminder);
 
+        gson = new Gson();
+        firebaseAuth = FirebaseAuth.getInstance();
+        firestore = FirebaseFirestore.getInstance();
+        documentReference = firestore.collection("users").document(firebaseAuth.getCurrentUser().getUid());
 
         etDesc = findViewById(R.id.etDesc);
         etEmail = findViewById(R.id.etEmail);
@@ -137,7 +152,16 @@ public class NewReminder extends AppCompatActivity {
 
                     Reminder reminder = new Reminder(Main2Activity.name,email, date,subject, description,number, day, true);
                     Log.d("New Reminder", "onClick: " + reminder.toString());
-                    Main2Activity.reminderArrayList.add(reminder);
+                    reminderArrayList.add(reminder);
+                    String gsonReminder = gson.toJson(reminderArrayList);
+                    MainActivity.map.put("Reminders", gsonReminder);
+                    documentReference.set(MainActivity.map).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(NewReminder.this, "Pushed", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
 
 
 

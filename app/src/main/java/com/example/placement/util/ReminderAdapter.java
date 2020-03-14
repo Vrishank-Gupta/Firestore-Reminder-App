@@ -8,22 +8,34 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.placement.DisableReminder;
+import com.example.placement.MainActivity;
 import com.example.placement.R;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ReminderAdapter extends ArrayAdapter<Reminder> {
+    Gson gson;
     public static final String TAG = "Reminder List";
 
     private Context mContext;
+    ArrayList<Reminder> reminderArrayList;
     int mResource;
-    public ReminderAdapter(@NonNull Context context, int resource, @NonNull List<Reminder> objects) {
-        super(context, resource, objects);
+    DocumentReference documentReference;
+    public ReminderAdapter(@NonNull Context context, int resource, @NonNull ArrayList<Reminder> reminderArrayList, DocumentReference documentReference) {
+        super(context, resource, reminderArrayList);
         mContext = context;
+        this.documentReference = documentReference;
+        this.reminderArrayList = reminderArrayList;
         mResource = resource;
     }
 
@@ -36,6 +48,7 @@ public class ReminderAdapter extends ArrayAdapter<Reminder> {
         String desc = getItem(position).getDescription();
         int freq = getItem(position).getDay();
         final boolean status = getItem(position).isStatus();
+        gson = new Gson();
 
         LayoutInflater inflater = LayoutInflater.from(mContext);
         convertView = inflater.inflate(mResource,parent,false);
@@ -70,8 +83,30 @@ public class ReminderAdapter extends ArrayAdapter<Reminder> {
                 if(isChecked)
                 {
                     getItem(position).setStatus(false);
+
+                    String jsonReminder = gson.toJson(reminderArrayList);
+                    MainActivity.map.put("Reminders", jsonReminder);
+                    documentReference.set(MainActivity.map).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(mContext, "Pushed", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
 
+                if(!isChecked)
+                {
+                    getItem(position).setStatus(true);
+
+                    String jsonReminder = gson.toJson(reminderArrayList);
+                    MainActivity.map.put("Reminders", jsonReminder);
+                    documentReference.set(MainActivity.map).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(mContext, "Pushed", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
         });
 

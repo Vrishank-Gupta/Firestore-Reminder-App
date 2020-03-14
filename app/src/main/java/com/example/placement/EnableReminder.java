@@ -25,11 +25,18 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
 
 import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.example.placement.MainActivity.reminderArrayList;
 
 public class EnableReminder extends AppCompatActivity {
 
@@ -44,10 +51,19 @@ public class EnableReminder extends AppCompatActivity {
     Button btnConfirm, btnClear, btnLogout;
     EditText etDesc,etEmail,etNumber;
     GoogleSignInClient mGoogleSignInClient;
+    FirebaseAuth firebaseAuth;
+    FirebaseFirestore firestore;
+    DocumentReference documentReference;
+    Gson gson;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_enable_reminder);
+        firebaseAuth = FirebaseAuth.getInstance();
+        firestore = FirebaseFirestore.getInstance();
+        gson = new Gson();
+        documentReference = firestore.collection("users").document(firebaseAuth.getCurrentUser().getUid());
+
 
 
         reminderIndex = -1;
@@ -119,7 +135,7 @@ public class EnableReminder extends AppCompatActivity {
                 new ArrayAdapter<Reminder>
                         (getApplicationContext(),
                                 android.R.layout.simple_spinner_dropdown_item,
-                                Main2Activity.reminderArrayList);
+                                MainActivity.reminderArrayList);
 
         adapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item);
         spinReminder.setAdapter(adapterReminder);
@@ -181,10 +197,23 @@ public class EnableReminder extends AppCompatActivity {
                         day = 7;
                     }
 
+                    if(reminderIndex != -1)
+                    {
+                        MainActivity.reminderArrayList.get(reminderIndex).setStatus(true);
 
-                    Reminder reminder = new Reminder(Main2Activity.name,email, date,subject, description,number, day, true);
-                    Log.d("New Reminder", "onClick: " + reminder.toString());
-                    if(reminderIndex != -1) Main2Activity.reminderArrayList.set(reminderIndex, reminder);
+
+                        String jsonReminder = gson.toJson(reminderArrayList);
+                        MainActivity.map.put("Reminders", jsonReminder);
+                        documentReference.set(MainActivity.map).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Toast.makeText(EnableReminder.this, "Pushed", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+
+                    }
+
                     Toast.makeText(EnableReminder.this, "Enabled Reminder", Toast.LENGTH_SHORT).show();
                 }
             }

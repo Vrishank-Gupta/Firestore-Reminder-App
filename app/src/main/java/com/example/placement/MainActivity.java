@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.placement.util.Reminder;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -16,13 +17,24 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.common.reflect.TypeToken;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,12 +42,21 @@ public class MainActivity extends AppCompatActivity {
     SignInButton signInButton;
     GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
+    FirebaseFirestore db;
+    public static Map<String,Object> map;
+    DocumentReference reference;
+    Gson gson;
+    public static ArrayList<Reminder> reminderArrayList;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+        reference = db.collection("users").document(mAuth.getCurrentUser().getUid());
+        gson = new Gson();
 
 
         signInButton = findViewById(R.id.btnSignIn);
@@ -56,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
@@ -68,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
+
                 firebaseAuthWithGoogle(account);
 
 
@@ -84,11 +107,23 @@ public class MainActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            FirebaseUser user = mAuth.getCurrentUser();
+                        if (task.isSuccessful())
+                        {
 
-                            startActivity(new Intent(MainActivity.this, Main2Activity.class));
-                            finish();
+                            map = new HashMap<>();
+                            fetchArrayList();
+//                            map = new HashMap<>();
+//                            map.put("email", mAuth.getCurrentUser().getEmail());
+//                            map.put("uid",mAuth.getCurrentUser().getUid());
+//                            reference.set(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                @Override
+//                                public void onSuccess(Void aVoid) {
+//                                    Toast.makeText(MainActivity.this, "Pushed", Toast.LENGTH_SHORT).show();
+//
+//                                    fetchArrayList();
+//                                }
+//                            });
+
                         } else {
                             Toast.makeText(MainActivity.this, "Failed", Toast.LENGTH_SHORT).show();
                         }
@@ -96,14 +131,60 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    private void fetchArrayList() {
 
-    @Override
-    protected void onStart() {
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        if(account != null) {
-            startActivity(new Intent(MainActivity.this, Main2Activity.class));
-            finish();
-        }
-        super.onStart();
+        reference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                DocumentSnapshot snapshot = task.getResult();
+
+                if(snapshot.exists() && snapshot!= null)
+                {
+                    Log.e("jsonReminder", "onComplete: " + snapshot.getData() );
+                    String jsonReminder = snapshot.getString("Reminders");
+
+                    if(jsonReminder == null || jsonReminder.equals("[]"))
+                    {
+                        reminderArrayList = new ArrayList<>();
+                         jsonReminder = gson.toJson(reminderArrayList);
+                        Log.e("jsonReminder", "onComplete: " );
+                        map.put("Email",mAuth.getCurrentUser().getEmail());
+                        map.put("UID",mAuth.getCurrentUser().getUid());
+
+                        map.put("Reminders", jsonReminder);
+                        reference.set(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Toast.makeText(MainActivity.this, "Pushed", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(MainActivity.this, Main2Activity.class));
+                                finish();
+                            }
+                        });
+                    }
+                    else
+                    {
+                        Type userListType = new TypeToken<ArrayList<Reminder>>(){}.getType();
+                         reminderArrayList = gson.fromJson(jsonReminder, userListType);
+                        map = snapshot.getData();
+                        Log.e("JsonReminder", "onComplete: " + jsonReminder );
+                        startActivity(new Intent(MainActivity.this, Main2Activity.class));
+                        finish();
+                    }
+                }
+            }
+        });
+
     }
+
+
+//    @Override
+//    protected void onStart() {
+//        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+//        if(account != null) {
+//            startActivity(new Intent(MainActivity.this, Main2Activity.class));
+//            finish();
+//        }
+//        super.onStart();
+//    }
 }

@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -19,9 +20,17 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
+
+import static com.example.placement.MainActivity.reminderArrayList;
 
 public class Main2Activity extends AppCompatActivity {
 
@@ -31,16 +40,21 @@ public class Main2Activity extends AppCompatActivity {
     TextView emailTV;
     TextView idTV;
     ImageView photoIV;
+    FirebaseFirestore firestore;
+    FirebaseAuth auth;
+    DocumentReference documentReference;
     public static String name;
-    public static ArrayList<Reminder> reminderArrayList;
+    Gson gson;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
-
-        reminderArrayList = new ArrayList<>();
+        auth = FirebaseAuth.getInstance();
+        firestore = FirebaseFirestore.getInstance();
+        gson = new Gson();
+        documentReference = firestore.collection("users").document(auth.getCurrentUser().getUid());
         home = findViewById(R.id.btnHome);
         sign_out = findViewById(R.id.log_out);
         nameTV = findViewById(R.id.name);
@@ -67,6 +81,21 @@ public class Main2Activity extends AppCompatActivity {
             emailTV.setText("Email: "+personEmail);
             idTV.setText("ID: "+personId);
             Glide.with(this).load(personPhoto).into(photoIV);
+
+
+
+//            reminderArrayList.add(new Reminder("hhds","sdcsdc","cdscsdcsdc","dscdsc","sdcsdc","sdcsdcsdc",3,true));
+//            String gsonReminder = gson.toJson(reminderArrayList);
+
+//            MainActivity.map.put("Reminders", gsonReminder);
+//            documentReference.set(MainActivity.map).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                @Override
+//                public void onSuccess(Void aVoid) {
+//                    Toast.makeText(Main2Activity.this, "Pushed", Toast.LENGTH_SHORT).show();
+//                }
+//            });
+
+
         }
 
         sign_out.setOnClickListener(new View.OnClickListener() {
